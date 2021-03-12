@@ -24,7 +24,7 @@ exports.randomDirection = (coordinates) => {
                 }
                 iterations -= 1
             }
-            resolve(coordinates.map((x) => x.toFixed(5)))
+            resolve(coordinates)
         } catch (e) {
             reject(e)
         }
