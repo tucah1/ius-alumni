@@ -5,7 +5,7 @@ const cors = require('cors')
 const adminRouter = require('./routes/adminRouter')
 const studentRouter = require('./routes/studentsRouter')
 
-const PORT = process.env.WEB_PORT || 5005
+const PORT = process.env.PORT || 5005
 
 app.use(express.json({ extended: false }))
 app.use(cors())
