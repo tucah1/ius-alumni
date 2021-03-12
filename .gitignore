@@ -1,0 +1,12 @@
+# Idea configurations
+/.idea
+
+# Node modules
+/node_modules
+
+# Prettier configuration files
+.prettierignore
+.prettierrc.json
+
+# Etc
+/config/default.json
