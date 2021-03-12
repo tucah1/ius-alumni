@@ -1,10 +1,20 @@
 const mysql = require('mysql2/promise')
 
+let config = {}
+if (
+    process.env.NODE_ENV === undefined ||
+    process.env.NODE_ENV === 'development'
+) {
+    config = require('../config/default.json')
+} else if (process.env.NODE_ENV === 'production') {
+    config = require('../config/production.js')
+}
+
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'iusalumni',
+    host: 'eu-cdbr-west-03.cleardb.net',
+    user: 'b6a3e0f6039bf6',
+    password: config['dbPass'],
+    database: 'heroku_9c7d675814712d7',
     connectionLimit: 10,
 })
 
