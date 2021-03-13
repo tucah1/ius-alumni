@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const getConnection = require('../config/database')
-const { randomDirection } = require('../util/helpers')
+const { addUpOffsets } = require('../util/helpers')
 
 // @route           GET /students/locations
 // @desc            Get all students locations
@@ -11,25 +11,29 @@ router.get('/locations', async (req, res) => {
         let result = await connection.query('SELECT * FROM location')
         let locationData = {}
         result[0].forEach((x) => {
-            locationData[x.location_id] = {
-                student_count: x.student_count,
-                coordinates: [x.coordinate_x, x.coordinate_y],
-            }
+            locationData[x.location_id] = [x.coordinate_x, x.coordinate_y]
         })
         result = await connection.query(
             'SELECT student_id, location_id FROM student'
         )
         let studentData = result[0]
+        result = await connection.query('SELECT * FROM location_offset')
+        let offsetData = {}
+        result[0].forEach((x) => {
+            offsetData[x.student_id] = [x.x, x.y]
+        })
 
         let finalData = []
         for (let i = 0; i < studentData.length; i++) {
             let x = studentData[i]
-            let returnObj = { studentId: x.student_id }
-            let customCoordinates = await randomDirection(
-                locationData[x.location_id].coordinates
+            let customCoordinates = await addUpOffsets(
+                locationData[x.location_id],
+                offsetData[x.student_id]
             )
-            returnObj['coordinates'] = customCoordinates
-            finalData.push(returnObj)
+            finalData.push({
+                studentId: x.student_id,
+                coordinates: [customCoordinates[0], customCoordinates[1]],
+            })
         }
 
         connection.release()
@@ -47,7 +51,7 @@ router.get('/', async (req, res) => {
     try {
         const connection = await getConnection()
         let result = await connection.query(
-            'SELECT * FROM student INNER JOIN location ON student.location_id = location.location_id'
+            'SELECT * FROM student AS s INNER JOIN location AS l ON s.location_id = l.location_id INNER JOIN location_offset as lo ON s.student_id = lo.student_id AND s.location_id = lo.location_id'
         )
 
         let data = result[0].map((x) => {
@@ -60,7 +64,10 @@ router.get('/', async (req, res) => {
                 location: {
                     title: x.title,
                     type: x.type,
-                    coordinates: [x.coordinate_x, x.coordinate_y],
+                    coordinates: addUpOffsets(
+                        [x.coordinate_x, x.coordinate_y],
+                        [x.x, x.y]
+                    ),
                 },
             }
         })
@@ -73,16 +80,16 @@ router.get('/', async (req, res) => {
     }
 })
 
-// @route           GET /student/:studentId
+// @route           GET /students/student/:studentId
 // @desc            Get student info
 // @access          Public
-router.get('/:student_id', async (req, res) => {
+router.get('/student/:student_id', async (req, res) => {
     const student_id = req.params.student_id
 
     try {
         const connection = await getConnection()
         let result = await connection.query(
-            'SELECT * FROM student INNER JOIN location ON student.location_id = location.location_id WHERE student_id = ?',
+            'SELECT * FROM student AS s INNER JOIN location AS l ON s.location_id = l.location_id INNER JOIN location_offset as lo ON s.student_id = lo.student_id AND s.location_id = lo.location_id WHERE s.student_id = ?',
             [student_id]
         )
         let data = result[0][0]
@@ -97,8 +104,40 @@ router.get('/:student_id', async (req, res) => {
             location: {
                 title: data.title,
                 type: data.type,
-                coordinates: [data.coordinate_x, data.coordinate_y],
+                coordinates: addUpOffsets(
+                    [data.coordinate_x, data.coordinate_y],
+                    [data.x, data.y]
+                ),
             },
+        })
+    } catch (e) {
+        console.error(e)
+        return res.status(500).json({ error: e })
+    }
+})
+
+// @route           GET /students/stats
+// @desc            Get statistics from the app
+// @access          Public
+router.get('/stats', async (req, res) => {
+    try {
+        const connection = await getConnection()
+        let result = await connection.query(
+            'SELECT title, student_count FROM location'
+        )
+        let result2 = await connection.query(
+            'SELECT SUM(student_count) as sum FROM location'
+        )
+
+        connection.release()
+
+        let locs = result[0]
+            .map((x) => [x.title, x.student_count])
+            .sort((a, b) => (a[1] > b[1] ? -1 : 1))
+        if (locs.length > 5) locs = locs.slice(0, 5)
+        return res.json({
+            numberOfStudents: result2[0][0].sum,
+            locations: locs,
         })
     } catch (e) {
         console.error(e)

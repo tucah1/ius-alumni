@@ -1,32 +1,44 @@
-exports.randomDirection = (coordinates) => {
-    return new Promise((resolve, reject) => {
-        try {
-            let iterations = Math.round(Math.random() * 50) + 1
-            while (iterations > 0) {
-                let direction = Math.round(Math.random() * 4) + 1
-                switch (direction) {
-                    case 1:
-                        coordinates[0] +=
-                            (Math.round(Math.random() * 9) + 1) / 10 ** 4
-                        break
-                    case 2:
-                        coordinates[0] -=
-                            (Math.round(Math.random() * 9) + 1) / 10 ** 4
-                        break
-                    case 3:
-                        coordinates[1] +=
-                            (Math.round(Math.random() * 9) + 1) / 10 ** 4
-                        break
-                    case 4:
-                        coordinates[1] -=
-                            (Math.round(Math.random() * 9) + 1) / 10 ** 4
-                        break
-                }
-                iterations -= 1
-            }
-            resolve(coordinates)
-        } catch (e) {
-            reject(e)
-        }
-    })
+exports.getOffsetIncrement = (locationStudentCount) => {
+    let standardDegreesIncrement = 4
+    let increment =
+        standardDegreesIncrement * (Math.floor(locationStudentCount / 8) + 1)
+    let direction = locationStudentCount % 8
+    let offset = []
+    switch (direction) {
+        case 1:
+            offset = [0, increment]
+            break
+        case 2:
+            offset = [increment, increment]
+            break
+        case 3:
+            offset = [increment, 0]
+            break
+        case 4:
+            offset = [increment, -increment]
+            break
+        case 5:
+            offset = [0, -increment]
+            break
+        case 6:
+            offset = [-increment, -increment]
+            break
+        case 7:
+            offset = [-increment, 0]
+            break
+        case 0:
+            offset = [-increment, increment]
+            break
+    }
+    return {
+        x: offset[0],
+        y: offset[1],
+    }
+}
+
+exports.addUpOffsets = (coordinates, offset) => {
+    return [
+        coordinates[0] + offset[0] / 10 ** 4,
+        coordinates[1] + offset[1] / 10 ** 4,
+    ]
 }

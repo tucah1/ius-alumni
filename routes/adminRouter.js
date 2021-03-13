@@ -5,6 +5,7 @@ const uuid = require('uuid')
 const authMiddleware = require('../middleware/authMiddleware')
 const getConnection = require('../config/database')
 const { validateNewStudentData } = require('../util/validation')
+const { getOffsetIncrement } = require('../util/helpers')
 
 let config = {}
 if (
@@ -24,12 +25,12 @@ router.get('/load', authMiddleware, async (req, res) => {
 })
 
 // Testing purposes
-router.post('/test', async (req, res) => {
+/*router.post('/test', async (req, res) => {
     const pass = req.body.pass
     const salt = await bcrypt.genSalt(10)
     const hash = await bcrypt.hash(pass, salt)
     return res.json({ hash })
-})
+})*/
 
 // @route           POST /admin/register
 // @desc            Create new admin account
@@ -136,6 +137,40 @@ router.post('/login', async (req, res) => {
     }
 })
 
+// @route           GET /admin/delete-account
+// @desc            Delete admin account
+// @access          Private
+router.get('/delete-account', authMiddleware, async (req, res) => {
+    try {
+        const connection = await getConnection()
+        await connection.query('DELETE FROM account WHERE account_id = ?', [
+            req.user.id,
+        ])
+        connection.release()
+        return res.json({ message: 'Account successfully deleted!' })
+    } catch (e) {
+        console.error(e)
+        return res.status(500).json({ error: e })
+    }
+})
+
+// @route           GET /admin/accounts
+// @desc            Get all admin accounts
+// @access          Private
+router.get('/accounts', authMiddleware, async (req, res) => {
+    try {
+        const connection = await getConnection()
+        let result = await connection.query(
+            'SELECT account_id, username FROM account'
+        )
+        connection.release()
+        return res.json(result[0])
+    } catch (e) {
+        console.error(e)
+        return res.status(500).json({ error: e })
+    }
+})
+
 // @route           POST /admin/update-password
 // @desc            Change user password
 // @access          Private
@@ -178,6 +213,7 @@ router.post('/add-student', authMiddleware, async (req, res) => {
         )
 
         let dbLocationData = {}
+        let locationStudentCount = 0
 
         if (result[0].length == 0) {
             const newLocation = {
@@ -190,6 +226,7 @@ router.post('/add-student', authMiddleware, async (req, res) => {
             }
             await connection.query('INSERT INTO location SET ?', [newLocation])
             dbLocationData = newLocation
+            locationStudentCount = 1
         } else {
             await connection.query(
                 'UPDATE location SET ? WHERE location_id = ?',
@@ -199,6 +236,7 @@ router.post('/add-student', authMiddleware, async (req, res) => {
                 ]
             )
             dbLocationData = result[0][0]
+            locationStudentCount = result[0][0].student_count + 1
         }
 
         let newStudent = {
@@ -211,6 +249,12 @@ router.post('/add-student', authMiddleware, async (req, res) => {
         }
 
         await connection.query('INSERT INTO student SET ?', [newStudent])
+
+        // Setting location marker offset
+        let offsetObj = getOffsetIncrement(locationStudentCount)
+        offsetObj.student_id = newStudent.student_id
+        offsetObj.location_id = dbLocationData.location_id
+        await connection.query('INSERT INTO location_offset SET ?', [offsetObj])
 
         connection.release()
         return res.json({ message: 'New student added successfully!' })
