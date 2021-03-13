@@ -148,7 +148,7 @@ router.get('/stats', async (req, res) => {
 // @route           GET /students/search/:search_text
 // @desc            Search students by name, position or location
 // @access          Public
-/*router.get('/search/:search_text', async (req, res) => {
+router.get('/search/:search_text', async (req, res) => {
     let search_text = req.params.search_text
     if (!search_text || search_text.trim().length < 3) {
         return res.status(400).json({
@@ -157,19 +157,48 @@ router.get('/stats', async (req, res) => {
     }
 
     try {
-        let tokens = search_text.trim().split(' ')
+        let tokens = search_text.trim().split('+')
+        tokens = tokens.filter((token) => token !== '')
+        let queryString = tokens.join(' ')
 
         const connection = await getConnection()
-        let result = await connection.query('SELECT * FROM student')
+        let result = await connection.query(
+            'SELECT * FROM student AS s INNER JOIN location AS l ON s.location_id = l.location_id INNER JOIN location_offset as lo ON s.student_id = lo.student_id AND s.location_id = lo.location_id'
+        )
+        let students = []
 
         result[0].forEach((student) => {
-            let fullName = student.name + student.surname
-            let fuzzRationName = 0
+            let fullName = student.name + ' ' + student.surname
+            let matchRatio = 0
+            if (fullName.toLowerCase().includes(queryString.toLowerCase())) {
+                matchRatio += queryString.length / fullName.length
+            }
+            if (matchRatio > 0)
+                students.push({
+                    studentId: student.student_id,
+                    name: student.name,
+                    surname: student.surname,
+                    description: student.description,
+                    graduated: student.graduated,
+                    matchRatio,
+                    location: {
+                        title: student.title,
+                        type: student.type,
+                        coordinates: addUpOffsets(
+                            [student.coordinate_x, student.coordinate_y],
+                            [student.x, student.y]
+                        ),
+                    },
+                })
         })
+        students = students.sort((a, b) =>
+            a.matchRatio > b.matchRatio ? -1 : 1
+        )
+        return res.json({ students })
     } catch (e) {
         console.error(e)
         return res.status(500).json({ error: e })
     }
-})*/
+})
 
 module.exports = router

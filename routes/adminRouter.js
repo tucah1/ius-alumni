@@ -65,21 +65,7 @@ router.post('/register', authMiddleware, async (req, res) => {
         ])
         connection.release()
 
-        let jwtPayload = {
-            user: {
-                id: account_id,
-            },
-        }
-
-        jwt.sign(
-            jwtPayload,
-            config['jwtSecret'],
-            { expiresIn: '3h' },
-            (err, token) => {
-                if (err) throw err
-                return res.json({ token })
-            }
-        )
+        return res.json({ message: 'New admin account created successfully!' })
     } catch (e) {
         console.error(e)
         return res.status(500).json({ error: e })
