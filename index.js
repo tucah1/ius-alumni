@@ -8,7 +8,7 @@ const studentRouter = require('./routes/studentsRouter')
 const PORT = process.env.PORT || 5005
 
 app.use(express.json({ extended: false }))
-app.use(cors())
+app.use(cors({ credentials: true, origin: true }))
 
 app.use('/api/admin', adminRouter)
 app.use('/api/students', studentRouter)
