@@ -148,6 +148,28 @@ router.get('/stats', async (req, res) => {
 // @route           GET /students/search/:search_text
 // @desc            Search students by name, position or location
 // @access          Public
-router.get('/search/:search_text', async (req, res) => {})
+/*router.get('/search/:search_text', async (req, res) => {
+    let search_text = req.params.search_text
+    if (!search_text || search_text.trim().length < 3) {
+        return res.status(400).json({
+            message: 'Bad request! Please include valid search parameter!',
+        })
+    }
+
+    try {
+        let tokens = search_text.trim().split(' ')
+
+        const connection = await getConnection()
+        let result = await connection.query('SELECT * FROM student')
+
+        result[0].forEach((student) => {
+            let fullName = student.name + student.surname
+            let fuzzRationName = 0
+        })
+    } catch (e) {
+        console.error(e)
+        return res.status(500).json({ error: e })
+    }
+})*/
 
 module.exports = router

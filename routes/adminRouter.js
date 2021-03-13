@@ -402,6 +402,11 @@ router.post('/delete-student', authMiddleware, async (req, res) => {
             [student_id]
         )
 
+        await connection.query(
+            'DELETE FROM location_offset WHERE student_id = ? AND location_id = ?',
+            [student_id, result[0][0].location_id]
+        )
+
         await connection.query('DELETE FROM student WHERE student_id = ?', [
             student_id,
         ])
