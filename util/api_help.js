@@ -112,7 +112,7 @@
     ]
 */
 
-// * app.get('/students', getAllStudents)
+// * app.get('/students/list-all/:page_no/:item_limit', getAllStudents)
 // * TAKES NOTHING -> SIMPLE GET REQUEST
 // * RETURNS:
 /*

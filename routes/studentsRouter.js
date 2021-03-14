@@ -44,14 +44,19 @@ router.get('/locations', async (req, res) => {
     }
 })
 
-// @route           GET /students
+// @route           GET /students/list-all/:page_no/:item_limit
 // @desc            Get all students info
 // @access          Public
-router.get('/', async (req, res) => {
+router.get('/list-all/:page_no/:item_limit', async (req, res) => {
     try {
+        let { page_no, item_limit } = req.params
+        page_no = parseInt(page_no)
+        item_limit = parseInt(item_limit)
+
         const connection = await getConnection()
         let result = await connection.query(
-            'SELECT * FROM student AS s INNER JOIN location AS l ON s.location_id = l.location_id INNER JOIN location_offset as lo ON s.student_id = lo.student_id AND s.location_id = lo.location_id'
+            'SELECT * FROM student AS s INNER JOIN location AS l ON s.location_id = l.location_id INNER JOIN location_offset as lo ON s.student_id = lo.student_id AND s.location_id = lo.location_id ORDER BY s.name LIMIT ?,?',
+            [(page_no - 1) * item_limit, item_limit]
         )
 
         let data = result[0].map((x) => {
