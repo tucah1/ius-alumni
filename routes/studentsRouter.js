@@ -54,6 +54,10 @@ router.get('/list-all/:page_no/:item_limit', async (req, res) => {
         item_limit = parseInt(item_limit)
 
         const connection = await getConnection()
+        let countResult = await connection.query(
+            'SELECT COUNT(student_id) as count FROM student'
+        )
+        let numberOfPages = Math.ceil(countResult[0][0].count / item_limit)
         let result = await connection.query(
             'SELECT * FROM student AS s INNER JOIN location AS l ON s.location_id = l.location_id INNER JOIN location_offset as lo ON s.student_id = lo.student_id AND s.location_id = lo.location_id ORDER BY s.name LIMIT ?,?',
             [(page_no - 1) * item_limit, item_limit]
@@ -78,7 +82,11 @@ router.get('/list-all/:page_no/:item_limit', async (req, res) => {
         })
 
         connection.release()
-        return res.json(data)
+        return res.json({
+            pages_number: numberOfPages,
+            current_page: page_no,
+            data,
+        })
     } catch (e) {
         console.error(e)
         return res.status(500).json({ error: e })

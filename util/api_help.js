@@ -116,38 +116,42 @@
 // * TAKES NOTHING -> SIMPLE GET REQUEST
 // * RETURNS:
 /*
-    [
-        {
-            "studentId": "BdrMIFDMYWDjrIENYANn",
-            "location": {
-                "title": "Sarajevo, BiH",
-                "coordinates": [
-                    23.1121,
-                    123.4321
-                ],
-                "type": "Point"
+    {
+        "pages_number": 10,
+        "current_page": 3,
+        "data": [
+            {
+                "studentId": "BdrMIFDMYWDjrIENYANn",
+                "location": {
+                    "title": "Sarajevo, BiH",
+                    "coordinates": [
+                        23.1121,
+                        123.4321
+                    ],
+                    "type": "Point"
+                },
+                "name": "Muhammed",
+                "surname": "Musanovic",
+                "description": "Senior Software Engineer at Tesla Inc.",
+                "graduated": "22/4/2022"
             },
-            "name": "Muhammed",
-            "surname": "Musanovic",
-            "description": "Senior Software Engineer at Tesla Inc.",
-            "graduated": "22/4/2022"
-        },
-        {
-            "studentId": "rYLJtKqMgUzQBYNSE6TB",
-            "name": "Harun",
-            "surname": "Tucakovic",
-            "description": "Senior Software Engineer at Google LLC",
-            "graduated": "22/4/2022",
-            "location": {
-                "coordinates": [
-                    42.2121,
-                    84.3212
-                ],
-                "type": "Point",
-                "title": "Chicago, Illinois, USA"
+            {
+                "studentId": "rYLJtKqMgUzQBYNSE6TB",
+                "name": "Harun",
+                "surname": "Tucakovic",
+                "description": "Senior Software Engineer at Google LLC",
+                "graduated": "22/4/2022",
+                "location": {
+                    "coordinates": [
+                        42.2121,
+                        84.3212
+                    ],
+                    "type": "Point",
+                    "title": "Chicago, Illinois, USA"
+                }
             }
-        }
-    ]
+        ]
+    }
 */
 
 // * app.get('/student/:studentId', getStudentById)
