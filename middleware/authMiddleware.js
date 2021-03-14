@@ -23,7 +23,7 @@ module.exports = function (req, res, next) {
         req.user = decoded.user
         next()
     } catch (e) {
-        res.header('Cache-Control', 'no-store')
+        res.setHeader('Cache-Control', 'no-store')
         return res.status(401).json({
             errors: [
                 {

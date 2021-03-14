@@ -21,7 +21,7 @@ if (
 // @desc            Load admin
 // @access          Private
 router.get('/load', authMiddleware, async (req, res) => {
-    res.header('Cache-Control', 'no-store')
+    res.setHeader('Cache-Control', 'no-store')
     return res.json({ isAuthenticated: true })
 })
 

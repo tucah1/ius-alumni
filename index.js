@@ -8,12 +8,12 @@ const studentRouter = require('./routes/studentsRouter')
 const PORT = process.env.PORT || 5005
 
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*')
-    res.header(
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader(
         'Access-Control-Allow-Methods',
         'GET, POST, PUT, DELETE, OPTIONS'
     )
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Cache-Control')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Cache-Control')
     next()
 })
 app.use(express.json({ extended: false }))
