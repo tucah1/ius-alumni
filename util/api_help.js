@@ -229,7 +229,9 @@
 // * app.get('/admin/accounts', auth, ...)
 // * TAKES NOTHING -> SIMPLE GET REQUEST
 // * RETURNS:
-/*{
+/*[
+    {
     "account_id": "...",
     "username": "..."
-}*/
+    }
+]*/
