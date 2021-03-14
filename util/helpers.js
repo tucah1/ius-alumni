@@ -1,5 +1,5 @@
 exports.getOffsetIncrement = (locationStudentCount) => {
-    let standardDegreesIncrement = 4
+    let standardDegreesIncrement = 8
     let increment =
         standardDegreesIncrement * (Math.floor(locationStudentCount / 8) + 1)
     let direction = locationStudentCount % 8
