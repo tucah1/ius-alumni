@@ -12,13 +12,9 @@ module.exports = function (req, res, next) {
     const token = req.header('x-auth-token')
 
     if (!token) {
-        return res
-            .status(401)
-            .json({
-                errors: [
-                    { code: 401, message: 'No token, authorization failed!' },
-                ],
-            })
+        return res.status(401).json({
+            errors: [{ code: 401, message: 'No token, authorization failed!' }],
+        })
     }
 
     try {
@@ -27,6 +23,7 @@ module.exports = function (req, res, next) {
         req.user = decoded.user
         next()
     } catch (e) {
+        res.header('Cache-Control', 'no-store')
         return res.status(401).json({
             errors: [
                 {
