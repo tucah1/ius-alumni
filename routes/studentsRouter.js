@@ -207,6 +207,7 @@ router.get('/search/:search_text', async (req, res) => {
         students = students.sort((a, b) =>
             a.matchRatio > b.matchRatio ? -1 : 1
         )
+        connection.release()
         return res.json({ students })
     } catch (e) {
         console.error(e)
