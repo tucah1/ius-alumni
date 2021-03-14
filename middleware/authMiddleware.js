@@ -10,6 +10,7 @@ if (
 }
 module.exports = function (req, res, next) {
     const token = req.header('x-auth-token')
+    res.setHeader('Cache-Control', 'no-store')
 
     if (!token) {
         return res.status(401).json({
@@ -23,7 +24,6 @@ module.exports = function (req, res, next) {
         req.user = decoded.user
         next()
     } catch (e) {
-        res.setHeader('Cache-Control', 'no-store')
         return res.status(401).json({
             errors: [
                 {
